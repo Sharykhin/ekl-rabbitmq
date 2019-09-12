@@ -1,65 +1,41 @@
-version: '2'
+version: '2.1'
 
 services:
-
-  elasticsearch:
+  golang:
     build:
-      context: elasticsearch/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      context: .
+      dockerfile: .docker/golang/Dockerfile
     ports:
-      - "9200:9200"
-      - "9300:9300"
-    environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: changeme
-    networks:
-      - elk
-
-  logstash:
-    build:
-      context: logstash/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - ./logs:/app/logs
-    ports:
-      - "5000:5000"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
-      - rabbitmq
+      - 5002:5002
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: simblebank.gateway
 
   kibana:
-    build:
-      context: kibana/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    image: kibana:6.8.3
     ports:
-      - "5601:5601"
-    networks:
-      - elk
-    depends_on:
+      - 5601:5601
+    links:
       - elasticsearch
 
-  rabbitmq:
-    image: rabbitmq:3.7.17-management-alpine
+  elasticsearch:
+    image: elasticsearch:6.8.3
+    expose:
+      - 9200
     ports:
-      - 15672:15672
-    networks:
-      - elk
+      - 9200:9200
 
-networks:
-
-  elk:
-    driver: bridge
+  fluentd:
+    build: .docker/fluentd
+    links:
+      - elasticsearch
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
