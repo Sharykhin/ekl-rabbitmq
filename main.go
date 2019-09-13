@@ -1,13 +1,17 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
+func init()  {
+	log.SetFormatter(&log.JSONFormatter{})
+}
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("I am a superman: %s", "John")
+		log.Info("Send info")
+		log.Error("Send Error")
 		w.Write([]byte("send logs to stdout and stderr"))
 	})
 

@@ -12,11 +12,23 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
-        fluentd-async-connect: 'true'
-        fluentd-retry-wait: '1s'
-        fluentd-max-retries: '30'
+        fluentd-address: localhost:24224
+#        fluentd-async-connect: 'true'
+#        fluentd-retry-wait: '1s'
+#        fluentd-max-retries: '30'
         tag: simblebank.gateway
+
+  web:
+    image: httpd
+    ports:
+      - "8082:80"
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: httpd.access
 
   kibana:
     image: kibana:6.8.3
