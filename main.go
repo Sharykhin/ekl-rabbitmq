@@ -2,13 +2,14 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
+	"fmt"
 	"net/http"
 )
 
 type Student struct {
-	Name string `msg:"name"`
-	IdNo int    `msg:"id_no"`
-	Age int     `msg:"age"`
+	Action string `json:"action"`
+	UserId string    `json:"user_id"`
+	Message string     `json:"message"`
 }
 
 func init()  {
@@ -26,7 +27,8 @@ func main() {
 	//defer logger.Close()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Info("test")
+		//log.Info("test")
+		fmt.Println(Student{"UserCreatd", "22233", "Ha Ha Ha"})
 		//_, err := os.Stdout.Write([]byte(`{"app": "simplebank", "key":"value"}`))
 		//if err !=nil {
 		//	panic(err)
