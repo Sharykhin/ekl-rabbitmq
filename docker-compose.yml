@@ -44,8 +44,17 @@ services:
     ports:
       - 9200:9200
 
+  postgres:
+    image: postgres:11
+    command: postgres -c logging_collector=on -c log_filename=postgresql.log -c log_directory=/logs -c log_statement=all
+    volumes:
+      - .docker/postgres/data:/var/lib/postgresql/data
+      - .docker/postgres/logs:/logs
+
   fluentd:
     build: .docker/fluentd
+    volumes:
+      - .docker/postgres/logs/postgresql.log:/logs/postgresql.log
     links:
       - elasticsearch
     ports:

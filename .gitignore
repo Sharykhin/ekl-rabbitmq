@@ -1,2 +1,4 @@
 .git
 .idea
+.docker/postgres/data
+.docker/postgres/logs
